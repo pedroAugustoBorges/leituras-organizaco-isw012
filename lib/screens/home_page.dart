@@ -1,6 +1,9 @@
 // Integrante: Pedro Augusto de Melo Borges
 import 'package:flutter/material.dart';
 
+import '../models/livro.dart';
+import 'cadastro_livro_page.dart';
+
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
@@ -9,7 +12,21 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final List<String> _livros = [];
+  final List<Livro> _livros = [];
+
+  Future<void> _abrirCadastro() async {
+    final livro = await Navigator.of(context).push<Livro>(
+      MaterialPageRoute<Livro>(
+        builder: (context) => const CadastroLivroPage(),
+      ),
+    );
+
+    if (!mounted || livro == null) {
+      return;
+    }
+
+    setState(() => _livros.add(livro));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -62,11 +79,65 @@ class _HomePageState extends State<HomePage> {
             const _EmptyLibraryCard()
           else
             ..._livros.map(
-              (livro) => Card(
-                child: ListTile(title: Text(livro)),
-              ),
+              (livro) => _BookCard(livro: livro),
             ),
         ],
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: _abrirCadastro,
+        icon: const Icon(Icons.add),
+        label: const Text('Adicionar livro'),
+      ),
+    );
+  }
+}
+
+class _BookCard extends StatelessWidget {
+  const _BookCard({required this.livro});
+
+  final Livro livro;
+
+  @override
+  Widget build(BuildContext context) {
+    final cores = Theme.of(context).colorScheme;
+
+    return Card(
+      color: Colors.white,
+      elevation: 0,
+      margin: const EdgeInsets.only(bottom: 12),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+        side: BorderSide(color: cores.outlineVariant),
+      ),
+      child: ListTile(
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 18,
+          vertical: 8,
+        ),
+        leading: CircleAvatar(
+          backgroundColor: cores.primaryContainer,
+          foregroundColor: cores.onPrimaryContainer,
+          child: const Icon(Icons.menu_book_outlined),
+        ),
+        title: Text(
+          livro.titulo,
+          style: const TextStyle(fontWeight: FontWeight.w700),
+        ),
+        subtitle: Padding(
+          padding: const EdgeInsets.only(top: 6),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(livro.autor),
+              const SizedBox(height: 10),
+              Chip(
+                label: Text(livro.status.nomeExibicao),
+                visualDensity: VisualDensity.compact,
+              ),
+            ],
+          ),
+        ),
+        isThreeLine: true,
       ),
     );
   }
