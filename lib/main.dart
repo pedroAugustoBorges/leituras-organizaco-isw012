@@ -19,9 +19,7 @@ class OrganizacaoLeiturasApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF557A65),
-        ),
+        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF557A65)),
         scaffoldBackgroundColor: corFundo,
         appBarTheme: const AppBarTheme(
           backgroundColor: corFundo,

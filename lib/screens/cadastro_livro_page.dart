@@ -39,13 +39,8 @@ class _CadastroLivroPageState extends State<CadastroLivroPage> {
     }
 
     FocusScope.of(context).unfocus();
-    Navigator.of(context).pop(
-      Livro(
-        titulo: titulo,
-        autor: autor,
-        status: _statusSelecionado,
-      ),
-    );
+    Navigator.of(context)
+        .pop(Livro(titulo: titulo, autor: autor, status: _statusSelecionado));
   }
 
   InputDecoration _decoracaoCampo({
@@ -59,9 +54,7 @@ class _CadastroLivroPageState extends State<CadastroLivroPage> {
       hintText: dica,
       errorText: erro,
       prefixIcon: Icon(icone),
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
+      border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
     );
   }
 

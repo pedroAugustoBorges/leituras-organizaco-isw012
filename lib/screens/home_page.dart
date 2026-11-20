@@ -16,9 +16,7 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> _abrirCadastro() async {
     final livro = await Navigator.of(context).push<Livro>(
-      MaterialPageRoute<Livro>(
-        builder: (context) => const CadastroLivroPage(),
-      ),
+      MaterialPageRoute<Livro>(builder: (context) => const CadastroLivroPage()),
     );
 
     if (!mounted || livro == null) {
@@ -26,6 +24,43 @@ class _HomePageState extends State<HomePage> {
     }
 
     setState(() => _livros.add(livro));
+    _mostrarMensagem('"' + livro.titulo + '" foi adicionado à sua biblioteca.');
+  }
+
+  Future<void> _confirmarRemocao(Livro livro) async {
+    final confirmar = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Remover livro?'),
+        content: Text('Deseja remover "' + livro.titulo + '" da sua lista?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancelar'),
+          ),
+          FilledButton.icon(
+            onPressed: () => Navigator.of(context).pop(true),
+            icon: const Icon(Icons.delete_outline),
+            label: const Text('Remover'),
+          ),
+        ],
+      ),
+    );
+
+    if (!mounted || confirmar != true) {
+      return;
+    }
+
+    setState(() => _livros.remove(livro));
+    _mostrarMensagem('"' + livro.titulo + '" foi removido da sua biblioteca.');
+  }
+
+  void _mostrarMensagem(String mensagem) {
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(content: Text(mensagem), behavior: SnackBarBehavior.floating),
+      );
   }
 
   @override
@@ -79,7 +114,7 @@ class _HomePageState extends State<HomePage> {
             const _EmptyLibraryCard()
           else
             ..._livros.map(
-              (livro) => _BookCard(livro: livro),
+              (livro) => _BookCard(livro: livro, onRemover: _confirmarRemocao),
             ),
         ],
       ),
@@ -93,9 +128,10 @@ class _HomePageState extends State<HomePage> {
 }
 
 class _BookCard extends StatelessWidget {
-  const _BookCard({required this.livro});
+  const _BookCard({required this.livro, required this.onRemover});
 
   final Livro livro;
+  final ValueChanged<Livro> onRemover;
 
   @override
   Widget build(BuildContext context) {
@@ -110,10 +146,7 @@ class _BookCard extends StatelessWidget {
         side: BorderSide(color: cores.outlineVariant),
       ),
       child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 18,
-          vertical: 8,
-        ),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
         leading: CircleAvatar(
           backgroundColor: cores.primaryContainer,
           foregroundColor: cores.onPrimaryContainer,
@@ -138,6 +171,12 @@ class _BookCard extends StatelessWidget {
           ),
         ),
         isThreeLine: true,
+        trailing: IconButton(
+          onPressed: () => onRemover(livro),
+          tooltip: 'Remover ' + livro.titulo,
+          color: cores.error,
+          icon: const Icon(Icons.delete_outline),
+        ),
       ),
     );
   }
