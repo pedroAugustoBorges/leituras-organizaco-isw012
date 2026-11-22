@@ -140,7 +140,7 @@ class _CadastroLivroPageState extends State<CadastroLivroPage> {
             ),
             const SizedBox(height: 18),
             DropdownButtonFormField<StatusLeitura>(
-              value: _statusSelecionado,
+              initialValue: _statusSelecionado,
               decoration: _decoracaoCampo(
                 rotulo: 'Status da leitura',
                 dica: 'Selecione um status',

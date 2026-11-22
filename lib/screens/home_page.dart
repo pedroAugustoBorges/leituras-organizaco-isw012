@@ -82,7 +82,7 @@ class _HomePageState extends State<HomePage> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Remover livro?'),
-        content: Text('Deseja remover "' + livro.titulo + '" da sua lista?'),
+        content: Text('Deseja remover "${livro.titulo}" da sua lista?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
@@ -235,7 +235,7 @@ class _BookCard extends StatelessWidget {
         isThreeLine: true,
         trailing: IconButton(
           onPressed: () => onRemover(livro),
-          tooltip: 'Remover ' + livro.titulo,
+          tooltip: 'Remover ${livro.titulo}',
           color: cores.error,
           icon: const Icon(Icons.delete_outline),
         ),

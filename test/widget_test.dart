@@ -1,30 +1,31 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-
-import 'package:organizao_leituras/main.dart';
+import 'package:organizao_leituras/models/livro.dart';
+import 'package:organizao_leituras/screens/cadastro_livro_page.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  testWidgets('formulário informa campos, status e valida dados', (
+    tester,
+  ) async {
+    await tester.pumpWidget(const MaterialApp(home: CadastroLivroPage()));
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    expect(find.byType(TextField), findsNWidgets(2));
+    expect(find.text('Quero ler'), findsOneWidget);
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+    await tester.tap(find.byType(DropdownButtonFormField<StatusLeitura>));
+    await tester.pumpAndSettle();
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    expect(find.text('Lendo'), findsOneWidget);
+    expect(find.text('Concluído'), findsOneWidget);
+
+    await tester.tap(find.text('Lendo'));
+    await tester.pumpAndSettle();
+    expect(find.text('Lendo'), findsOneWidget);
+
+    await tester.tap(find.text('Adicionar livro'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Informe o título do livro.'), findsOneWidget);
+    expect(find.text('Informe o autor do livro.'), findsOneWidget);
   });
 }
