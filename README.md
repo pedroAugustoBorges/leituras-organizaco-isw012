@@ -1,18 +1,43 @@
-# organizao_leituras
+# Organização de Leituras
 
-A new Flutter project.
+Aplicativo desenvolvido em Flutter e Dart para organizar uma lista pessoal de livros e acompanhar o andamento das leituras.
 
-## Getting Started
+## Funcionalidades
 
-This project is a starting point for a Flutter application.
+- Cadastrar livro com título e autor.
+- Escolher entre os status **Quero ler**, **Lendo** e **Concluído**.
+- Consultar os livros cadastrados na tela inicial.
+- Remover livros com confirmação.
+- Receber mensagens de confirmação ao adicionar ou remover livros.
+- Manter a lista salva localmente entre as execuções do aplicativo.
 
-A few resources to get you started if this is your first Flutter project:
+## Persistência dos dados
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+O aplicativo usa o pacote **shared_preferences**. Como esse armazenamento funciona com pares de chave e valor, a coleção de livros é convertida para JSON e salva como uma única string na chave **livros**. Ao iniciar o app, essa string é lida e convertida novamente para a lista de livros.
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
-# leituras-organizaco-isw012
+O projeto não usa SQLite nem banco de dados externo.
+
+## Como executar
+
+Com o Flutter instalado, na pasta do projeto execute:
+
+~~~sh
+flutter pub get
+flutter run
+~~~
+
+## Integrante
+
+Pedro Augusto de Melo Borges
+
+## Estrutura principal
+
+- lib/models/livro.dart: dados do livro e status de leitura.
+- lib/screens/home_page.dart: lista e ações da tela inicial.
+- lib/screens/cadastro_livro_page.dart: formulário de cadastro.
+- lib/services/livro_storage.dart: gravação e leitura local.
+
+## Referências
+
+- [Pacote shared_preferences](https://pub.dev/packages/shared_preferences)
+- [Navegação entre telas no Flutter](https://docs.flutter.dev/cookbook/navigation/navigation-basics)
