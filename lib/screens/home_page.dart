@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 
 import '../models/livro.dart';
+import '../services/livro_storage.dart';
 import 'cadastro_livro_page.dart';
 
 class HomePage extends StatefulWidget {
@@ -13,6 +14,46 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final List<Livro> _livros = [];
+  final LivroStorage _armazenamento = LivroStorage();
+  bool _carregando = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _carregarLivros();
+  }
+
+  Future<void> _carregarLivros() async {
+    try {
+      final livrosSalvos = await _armazenamento.carregarLivros();
+      if (!mounted) {
+        return;
+      }
+
+      setState(() {
+        _livros
+          ..clear()
+          ..addAll(livrosSalvos);
+        _carregando = false;
+      });
+    } catch (_) {
+      if (!mounted) {
+        return;
+      }
+
+      setState(() => _carregando = false);
+      _mostrarMensagem('Não foi possível carregar os livros salvos.');
+    }
+  }
+
+  Future<bool> _salvarLivros() async {
+    try {
+      await _armazenamento.salvarLivros(List<Livro>.unmodifiable(_livros));
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
 
   Future<void> _abrirCadastro() async {
     final livro = await Navigator.of(context).push<Livro>(
@@ -24,7 +65,16 @@ class _HomePageState extends State<HomePage> {
     }
 
     setState(() => _livros.add(livro));
-    _mostrarMensagem('"' + livro.titulo + '" foi adicionado à sua biblioteca.');
+    final salvo = await _salvarLivros();
+    if (!mounted) {
+      return;
+    }
+
+    _mostrarMensagem(
+      salvo
+          ? 'Livro adicionado à sua biblioteca.'
+          : 'Livro adicionado, mas não foi possível salvar os dados.',
+    );
   }
 
   Future<void> _confirmarRemocao(Livro livro) async {
@@ -52,7 +102,16 @@ class _HomePageState extends State<HomePage> {
     }
 
     setState(() => _livros.remove(livro));
-    _mostrarMensagem('"' + livro.titulo + '" foi removido da sua biblioteca.');
+    final salvo = await _salvarLivros();
+    if (!mounted) {
+      return;
+    }
+
+    _mostrarMensagem(
+      salvo
+          ? 'Livro removido da sua biblioteca.'
+          : 'Livro removido da tela, mas não foi possível salvar os dados.',
+    );
   }
 
   void _mostrarMensagem(String mensagem) {
@@ -92,34 +151,37 @@ class _HomePageState extends State<HomePage> {
           ],
         ),
       ),
-      body: ListView(
-        padding: const EdgeInsets.fromLTRB(20, 28, 20, 36),
-        children: [
-          Text(
-            'Sua biblioteca',
-            style: tema.textTheme.headlineSmall?.copyWith(
-              color: cores.onSurface,
-              fontWeight: FontWeight.w700,
+      body: _carregando
+          ? const Center(child: CircularProgressIndicator())
+          : ListView(
+              padding: const EdgeInsets.fromLTRB(20, 28, 20, 36),
+              children: [
+                Text(
+                  'Sua biblioteca',
+                  style: tema.textTheme.headlineSmall?.copyWith(
+                    color: cores.onSurface,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Organize seus livros e acompanhe cada etapa da leitura.',
+                  style: tema.textTheme.bodyLarge?.copyWith(
+                    color: cores.onSurfaceVariant,
+                  ),
+                ),
+                const SizedBox(height: 28),
+                if (_livros.isEmpty)
+                  const _EmptyLibraryCard()
+                else
+                  ..._livros.map(
+                    (livro) =>
+                        _BookCard(livro: livro, onRemover: _confirmarRemocao),
+                  ),
+              ],
             ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Organize seus livros e acompanhe cada etapa da leitura.',
-            style: tema.textTheme.bodyLarge?.copyWith(
-              color: cores.onSurfaceVariant,
-            ),
-          ),
-          const SizedBox(height: 28),
-          if (_livros.isEmpty)
-            const _EmptyLibraryCard()
-          else
-            ..._livros.map(
-              (livro) => _BookCard(livro: livro, onRemover: _confirmarRemocao),
-            ),
-        ],
-      ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: _abrirCadastro,
+        onPressed: _carregando ? null : _abrirCadastro,
         icon: const Icon(Icons.add),
         label: const Text('Adicionar livro'),
       ),
